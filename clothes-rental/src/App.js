@@ -79,6 +79,12 @@ function App() {
             element={
               <RegistrationForm></RegistrationForm>
             }></Route>
+
+          <Route
+            path="/cart"
+            element={
+              <Cart></Cart>
+            }></Route>
         </Routes>
       </>
     </Router>
