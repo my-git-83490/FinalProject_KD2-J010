@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Link } from 'react-router-dom';
 
 const RegistrationForm = () => {
     const [formData, setFormData] = useState({
@@ -93,7 +94,7 @@ const RegistrationForm = () => {
                             </form>
                         </div>
                         <div className="card-footer text-center py-3">
-                            <small className="text-muted">Already have an account? <a href="#" className="text-primary">Sign in</a></small>
+                            <small className="text-muted">Already have an account? <Link to="/login" className="text-primary">Sign in</Link></small>
                         </div>
                     </div>
                 </div>
