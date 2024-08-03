@@ -12,6 +12,7 @@ import ContactForm from "./components/ContactForm.jsx";
 import About from "./components/About.jsx"
 import SignInForm from "./components/SignInForm.jsx";
 import RegistrationForm from "./components/RegistrationForm.jsx";
+import Cart from "./components/Cart.jsx";
 
 function App() {
   return (
@@ -82,9 +83,10 @@ function App() {
 
           <Route
             path="/cart"
-            element={
-              <Cart></Cart>
-            }></Route>
+            element={<Cart></Cart>}
+          ></Route>
+
+
         </Routes>
       </>
     </Router>
