@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.cards{
+    flex: 1;
+    cursor: pointer;
+}
+
+.cards:hover
+{
+    flex: 3;
+}
+
