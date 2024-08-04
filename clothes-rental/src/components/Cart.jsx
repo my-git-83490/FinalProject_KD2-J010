@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router';
+import { Link } from 'react-router-dom';
 
 const products = [
     {
@@ -84,7 +85,7 @@ export default function Example() {
                         </div>
                         <p className="text-muted">Shipping and taxes calculated at checkout.</p>
                         <div className="d-grid gap-2">
-                            <a href="#" className="btn btn-primary">Checkout</a>
+                            <Link to="/checkout" className="btn btn-primary">Checkout</Link>
                             <button type="button" className="btn btn-link text-muted" onClick={() => setOpen(false)}>
                                 Continue Shopping &rarr;
                             </button>
