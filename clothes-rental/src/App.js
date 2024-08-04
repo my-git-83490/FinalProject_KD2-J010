@@ -13,6 +13,7 @@ import About from "./components/About.jsx"
 import SignInForm from "./components/SignInForm.jsx";
 import RegistrationForm from "./components/RegistrationForm.jsx";
 import Cart from "./components/Cart.jsx";
+import Checkout from "./components/Checkout.jsx";
 
 function App() {
   return (
@@ -86,6 +87,10 @@ function App() {
             element={<Cart></Cart>}
           ></Route>
 
+<Route
+            path="/checkout"
+            element={<Checkout></Checkout>}
+          ></Route>
 
         </Routes>
       </>
