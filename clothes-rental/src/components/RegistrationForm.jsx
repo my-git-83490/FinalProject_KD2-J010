@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import userServices from '../components/userServices'
+import { toast } from 'react-toastify';
 
 const RegistrationForm = () => {
+
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
         password: '',
-        role: 'Customer' // Default value
+        role: 'CUSTOMER' // Default value
     });
 
     const handleChange = (e) => {
@@ -20,9 +25,27 @@ const RegistrationForm = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Handle form submission logic (e.g., send data to server)
-        console.log(formData);
+        console.log('Submitting:', formData);
+
+        userServices.register(formData)
+            .then((response) => {
+                console.log('Response:', response.data);
+                setFormData({
+                    fullName: formData.fullName,
+                    email: formData.email,
+                    password: formData.password,
+                    role: formData.role
+                });
+                toast.success('Registration successful');
+                setTimeout(() => {
+                    navigate('/login')
+                }, 2000)
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
     };
+
 
     return (
         <div className="container mt-5">
@@ -82,8 +105,8 @@ const RegistrationForm = () => {
                                         value={formData.role}
                                         onChange={handleChange}
                                     >
-                                        <option value="Customer">Customer</option>
-                                        <option value="Seller">Seller</option>
+                                        <option value="CUSTOMER">Customer</option>
+                                        <option value="SELLER">Seller</option>
                                     </select>
                                 </div>
                                 <div className="d-grid">
