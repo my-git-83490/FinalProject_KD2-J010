@@ -1,9 +1,7 @@
 package com.sunbeam.controller;
 
-import com.sunbeam.dto.ClothingItemDTO;
-import com.sunbeam.entities.Category;
+import com.sunbeam.dto.AddClothingItemDTO;
 import com.sunbeam.entities.ClothingItem;
-import com.sunbeam.service.CategoryService;
 import com.sunbeam.service.ClothingItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,16 +17,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/clothingItems")
-@CrossOrigin(origins = "http://localhost:3000")
 public class ClothingItemController {
 
-    private static final String UPLOAD_DIR = "images/";
+    private static String UPLOADED_FOLDER = "/Users/tejas/Desktop/my-git-data/ADVJAVA/spring_boot_backend_template/src/main/resources/static/Images/";
 
     @Autowired
     private ClothingItemService clothingItemService;
-
-    @Autowired
-    private CategoryService categoryService;
 
     @GetMapping
     public List<ClothingItem> getAllClothingItems() {
@@ -44,61 +38,53 @@ public class ClothingItemController {
         return ResponseEntity.ok(clothingItem);
     }
 
-    @GetMapping("/seller/{sellerId}")
-    public List<ClothingItem> getClothingItemsBySellerId(@PathVariable Long sellerId) {
-        return clothingItemService.getClothingItemsBySellerId(sellerId);
-    }
-
-    @PostMapping
-    public ResponseEntity<ClothingItem> createClothingItem(@Valid @RequestPart("clothingItem") ClothingItemDTO clothingItemDTO,
-                                                           @RequestPart("file") MultipartFile file) throws IOException {
-        Category category = categoryService.getCategoryById(clothingItemDTO.getCategoryId());
-        if (category == null) {
+    @PostMapping("/upload")
+    public ResponseEntity<ClothingItem> createClothingItem(@RequestPart("clothingItem") @Valid AddClothingItemDTO clothingItemDTO,
+                                                           @RequestPart("file") MultipartFile file) {
+        if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(null);
         }
 
-        // Save the file to the upload directory
-        String fileName = saveFile(file);
+        try {
+            // Save file to the specified folder
+            byte[] bytes = file.getBytes();
+            Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
+            Files.write(path, bytes);
 
-        ClothingItem clothingItem = new ClothingItem();
-        clothingItem.setName(clothingItemDTO.getName());
-        clothingItem.setDescription(clothingItemDTO.getDescription());
-        clothingItem.setPricePerDay(clothingItemDTO.getPricePerDay());
-        clothingItem.setSize(clothingItemDTO.getSize());
-        clothingItem.setColor(clothingItemDTO.getColor());
-        clothingItem.setCategory(category);
-        clothingItem.setImageUrl(fileName);
+            // Set the image URL to the clothing item DTO
+            clothingItemDTO.setImageUrl(path.toString());
 
-        ClothingItem createdClothingItem = clothingItemService.saveClothingItem(clothingItem);
-        return ResponseEntity.ok(createdClothingItem);
+            ClothingItem newClothingItem = clothingItemService.saveClothingItem(clothingItemDTO);
+            return ResponseEntity.ok(newClothingItem);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClothingItem> updateClothingItem(@PathVariable Long id, @Valid @RequestPart("clothingItem") ClothingItemDTO clothingItemDTO,
-                                                           @RequestPart("file") MultipartFile file) throws IOException {
-        ClothingItem clothingItem = clothingItemService.getClothingItemById(id);
-        if (clothingItem == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Category category = categoryService.getCategoryById(clothingItemDTO.getCategoryId());
-        if (category == null) {
+    public ResponseEntity<ClothingItem> updateClothingItem(@PathVariable Long id,
+                                                           @RequestPart("clothingItem") @Valid AddClothingItemDTO clothingItemDTO,
+                                                           @RequestPart("file") MultipartFile file) {
+        if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(null);
         }
 
-        // Save the file to the upload directory
-        String fileName = saveFile(file);
+        try {
+            // Save file to the specified folder
+            byte[] bytes = file.getBytes();
+            Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
+            Files.write(path, bytes);
 
-        clothingItem.setName(clothingItemDTO.getName());
-        clothingItem.setDescription(clothingItemDTO.getDescription());
-        clothingItem.setPricePerDay(clothingItemDTO.getPricePerDay());
-        clothingItem.setSize(clothingItemDTO.getSize());
-        clothingItem.setColor(clothingItemDTO.getColor());
-        clothingItem.setCategory(category);
-        clothingItem.setImageUrl(fileName);
+            // Set the image URL to the clothing item DTO
+            clothingItemDTO.setImageUrl(path.toString());
 
-        ClothingItem updatedClothingItem = clothingItemService.saveClothingItem(clothingItem);
-        return ResponseEntity.ok(updatedClothingItem);
+            ClothingItem updatedClothingItem = clothingItemService.updateClothingItem(id, clothingItemDTO);
+            return ResponseEntity.ok(updatedClothingItem);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -110,17 +96,5 @@ public class ClothingItemController {
 
         clothingItemService.deleteClothingItem(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private String saveFile(MultipartFile file) throws IOException {
-        if (file.isEmpty()) {
-            return null;
-        }
-
-        byte[] bytes = file.getBytes();
-        Path path = Paths.get(UPLOAD_DIR + file.getOriginalFilename());
-        Files.write(path, bytes);
-
-        return path.toString();
     }
 }

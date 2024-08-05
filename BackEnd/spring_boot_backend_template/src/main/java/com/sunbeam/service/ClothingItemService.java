@@ -1,22 +1,15 @@
 package com.sunbeam.service;
 
-import java.util.List;
-
+import com.sunbeam.dto.AddClothingItemDTO;
 import com.sunbeam.entities.ClothingItem;
 
+import java.util.List;
+
 public interface ClothingItemService {
-
-	
-	    public List<ClothingItem> getAllClothingItems() ;
-
-	   
-	    public ClothingItem getClothingItemById(Long id) ;
-
-	    
-	    public ClothingItem saveClothingItem(ClothingItem clothingItem);
-
-	
-	    public void deleteClothingItem(Long id) ;
-
-	    public List<ClothingItem> getClothingItemsBySellerId(Long sellerId) ;
+    List<ClothingItem> getAllClothingItems();
+    ClothingItem getClothingItemById(Long id);
+    ClothingItem saveClothingItem(AddClothingItemDTO clothingItemDTO);
+    ClothingItem updateClothingItem(Long id, AddClothingItemDTO clothingItemDTO);
+    void deleteClothingItem(Long id);
+    
 }
