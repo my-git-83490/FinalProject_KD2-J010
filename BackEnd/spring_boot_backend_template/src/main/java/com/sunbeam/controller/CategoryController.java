@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
+@CrossOrigin(origins = "http://localhost:3000") 
 public class CategoryController {
 
     @Autowired
@@ -22,14 +23,14 @@ public class CategoryController {
         return categoryService.getAllCategories();
     }
 
-//    @GetMapping("/{id}")
-//    public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
-//        Category category = categoryService.getCategoryById(id);
-//        if (category == null) {
-//            return ResponseEntity.notFound().build();
-//        }
-//        return ResponseEntity.ok(category);
-//    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
+        Category category = categoryService.getCategoryById(id);
+        if (category == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(category);
+    }
 
     @PostMapping
     public Category createCategory(@Valid @RequestBody Category category) {
@@ -49,14 +50,16 @@ public class CategoryController {
         return ResponseEntity.ok(updatedCategory);
     }
 
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-//        Category category = categoryService.getCategoryById(id);
-//        if (category == null) {
-//            return ResponseEntity.notFound().build();
-//        }
-//
-//        categoryService.deleteCategory(id);
-//        return ResponseEntity.noContent().build();
-//    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+        Category category = categoryService.getCategoryById(id);
+        if (category == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        categoryService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
+    }
 }
+
+
