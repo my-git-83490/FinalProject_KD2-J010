@@ -2,6 +2,9 @@ package com.sunbeam.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import com.sunbeam.dto.ForgotPasswordDTO;
@@ -9,10 +12,14 @@ import com.sunbeam.dto.LoginDTO;
 import com.sunbeam.dto.ResetPasswordDTO;
 import com.sunbeam.dto.UserRegistrationDTO;
 import com.sunbeam.entities.User;
+import com.sunbeam.security.JwtHelper;
 import com.sunbeam.service.UserService;
 
 import javax.validation.Valid;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -21,6 +28,12 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtHelper jwtHelper;
 
     @GetMapping
     public List<User> getAllUsers() {
@@ -37,18 +50,25 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@Valid @RequestBody UserRegistrationDTO userRegistrationDTO) {
-        User user = userService.registerUser(userRegistrationDTO);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<String> registerUser(@RequestBody @Valid UserRegistrationDTO userRegistrationDTO) {
+        userService.registerUser(userRegistrationDTO);
+        return ResponseEntity.ok("User registered successfully");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@Valid @RequestBody LoginDTO loginDTO) {
-        User user = userService.login(loginDTO);
-        if (user == null) {
-            return ResponseEntity.status(401).body(null);  // Unauthorized
-        }
-        return ResponseEntity.ok(user);
+    public ResponseEntity<Map<String, Object>> loginUser(@RequestBody @Valid LoginDTO loginDTO) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword()));
+        final UserDetails userDetails = userService.loadUserByUsername(loginDTO.getEmail());
+        final String jwtToken = jwtHelper.generateToken(userDetails);
+
+        // Fetch the complete user details
+        User user = userService.getUserByEmail(loginDTO.getEmail());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", jwtToken);
+        response.put("user", user);  // Include the complete user details
+
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
@@ -57,7 +77,6 @@ public class UserController {
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
-
         user.setFullName(userDetails.getFullName());
         user.setEmail(userDetails.getEmail());
         user.setRole(userDetails.getRole());
@@ -72,7 +91,6 @@ public class UserController {
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
-
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
@@ -89,6 +107,6 @@ public class UserController {
         if (isPasswordReset) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.status(400).build(); 
+        return ResponseEntity.status(400).build();
     }
 }
