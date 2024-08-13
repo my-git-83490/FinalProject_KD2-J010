@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.sunbeam.dto.ForgotPasswordDTO;
 import com.sunbeam.dto.LoginDTO;
+import com.sunbeam.dto.ResetPasswordDTO;
 import com.sunbeam.dto.UserRegistrationDTO;
 import com.sunbeam.entities.User;
 import com.sunbeam.service.UserService;
@@ -14,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "http://localhost:3000") 
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
     @Autowired
@@ -73,5 +75,20 @@ public class UserController {
 
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordDTO forgotPasswordDTO) {
+        userService.generateAndSendOtp(forgotPasswordDTO);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordDTO resetPasswordDTO) {
+        boolean isPasswordReset = userService.resetPassword(resetPasswordDTO);
+        if (isPasswordReset) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.status(400).build(); 
     }
 }
