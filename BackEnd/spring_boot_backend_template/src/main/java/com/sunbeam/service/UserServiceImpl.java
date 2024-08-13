@@ -1,19 +1,24 @@
 package com.sunbeam.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
-
 import com.sunbeam.dao.UserDao;
 import com.sunbeam.dto.ForgotPasswordDTO;
 import com.sunbeam.dto.LoginDTO;
 import com.sunbeam.dto.ResetPasswordDTO;
 import com.sunbeam.dto.UserRegistrationDTO;
 import com.sunbeam.entities.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -26,6 +31,21 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userDao.findByEmail(email);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with email: " + email);
+        }
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
+    }
 
     @Override
     public List<User> getAllUsers() {
@@ -51,7 +71,7 @@ public class UserServiceImpl implements UserService {
     public User registerUser(UserRegistrationDTO userRegistrationDTO) {
         User user = new User();
         user.setFullName(userRegistrationDTO.getFullName());
-        user.setPassword(userRegistrationDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(userRegistrationDTO.getPassword()));
         user.setEmail(userRegistrationDTO.getEmail());
         user.setRole(userRegistrationDTO.getRole());
         return userDao.save(user);
@@ -59,11 +79,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User login(LoginDTO loginDTO) {
-        User user = userDao.findByEmail(loginDTO.getEmail());
-        if (user != null && user.getPassword().equals(loginDTO.getPassword())) {
-            return user;
-        }
-        return null;
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword()));
+        return userDao.findByEmail(loginDTO.getEmail());
     }
 
     @Override
@@ -72,7 +89,7 @@ public class UserServiceImpl implements UserService {
         if (user != null) {
             String otp = generateOtp();
             user.setOtp(otp);
-            user.setOtpExpiryTime(LocalDateTime.now().plusMinutes(10)); // OTP valid for 10 minutes
+            user.setOtpExpiryTime(LocalDateTime.now().plusMinutes(10));
             userDao.save(user);
             sendOtpEmail(user.getEmail(), otp);
         }
@@ -98,12 +115,17 @@ public class UserServiceImpl implements UserService {
         if (user != null && user.getOtp() != null &&
                 user.getOtp().equals(resetPasswordDTO.getOtp()) &&
                 user.getOtpExpiryTime().isAfter(LocalDateTime.now())) {
-            user.setPassword(resetPasswordDTO.getNewPassword());
-            user.setOtp(null);  // Clear OTP after successful password reset
+            user.setPassword(passwordEncoder.encode(resetPasswordDTO.getNewPassword()));
+            user.setOtp(null);
             user.setOtpExpiryTime(null);
             userDao.save(user);
             return true;
         }
         return false;
+    }
+
+    @Override
+    public User getUserByEmail(String email) {
+        return userDao.findByEmail(email);
     }
 }
