@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/carts")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
 public class CartController {
 
     @Autowired
@@ -34,6 +35,20 @@ public class CartController {
     @PostMapping
     public Cart createCart(@Valid @RequestBody Cart cart) {
         return cartService.saveCart(cart);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Cart> updateCart(@PathVariable Long id, @Valid @RequestBody Cart cartDetails) {
+        Cart cart = cartService.getCartById(id);
+        if (cart == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        cart.setUser(cartDetails.getUser());
+        cart.setCartItems(cartDetails.getCartItems());
+
+        Cart updatedCart = cartService.saveCart(cart);
+        return ResponseEntity.ok(updatedCart);
     }
 
     @DeleteMapping("/{id}")

@@ -31,6 +31,8 @@ public class RentalOrderDTO {
 
     @NotNull(message = "Order date is mandatory")
     private LocalDate orderDate;
+    
+    private String address;
 
     @NotNull(message = "Rental period start date is mandatory")
     private LocalDate rentalPeriodStart;

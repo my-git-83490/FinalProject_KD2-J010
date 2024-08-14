@@ -1,13 +1,8 @@
 package com.sunbeam.entities;
 
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
-import javax.persistence.*;
-
 import lombok.*;
 
+import javax.persistence.*;
 
 @Data
 @NoArgsConstructor
@@ -16,8 +11,6 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-
-
 public class ClothingItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +30,8 @@ public class ClothingItem {
     @ManyToOne
     @JoinColumn(name = "seller_id")
     private User seller;
-
-   
 }
+
+
+
+

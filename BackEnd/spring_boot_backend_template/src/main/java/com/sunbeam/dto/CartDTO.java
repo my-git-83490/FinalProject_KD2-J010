@@ -1,5 +1,7 @@
 package com.sunbeam.dto;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 
@@ -18,9 +20,8 @@ import lombok.ToString;
 @ToString
 public class CartDTO {
     private Long id;
-
-    @NotNull(message = "User ID is mandatory")
     private Long userId;
+    private List<CartItemDTO> cartItems;
 
-   
+    // Getters and Setters
 }
