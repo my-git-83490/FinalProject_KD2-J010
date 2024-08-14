@@ -26,16 +26,19 @@ const SignInForm = () => {
         e.preventDefault();
         console.log("Submitting: ", formData);
         userServices.login(formData).then((response) => {
-            const { role } = response.data;
+            const { role, email, id, fullName } = response.data;
             console.log(response.data);
             setFormData({
                 email: formData.email,
                 password: formData.password
             });
-            localStorage.setItem("userRole", role)
+            sessionStorage.setItem("userRole", role)
+            sessionStorage.setItem("email", email)
+            sessionStorage.setItem("id", id);
+            sessionStorage.setItem("fullName", fullName);
             toast.success("Login Successful")
             setTimeout(() => {
-                navigate('/')
+                navigate('/home')
             }, 2000)
         }).catch((error) => {
             console.log(error);
@@ -45,23 +48,15 @@ const SignInForm = () => {
 
 
     return (
-        // Main container with margin at the top
         <div className="container mt-5">
             <div className="row justify-content-center">
                 <div className="col-md-6">
-                    {/* Card to hold the sign-in form with shadow and rounded corners */}
                     <div className="card shadow-lg border-0 rounded-lg">
-                        {/* Card header with a primary background color and centered text */}
                         <div className="card-header bg-primary text-white text-center">
                             <h3 className="my-3">Sign In</h3>
                         </div>
-                        {/* Card body to contain the form with padding */}
                         <div className="card-body p-4">
-
-                            <form>
-                                {/* Email input field */}
                             <form onSubmit={handleSignIn}>
-
                                 <div className="mb-3">
                                     <label htmlFor="email" className="form-label">Email Address</label>
                                     <input
@@ -75,7 +70,6 @@ const SignInForm = () => {
                                         required
                                     />
                                 </div>
-                                {/* Password input field */}
                                 <div className="mb-3">
                                     <label htmlFor="password" className="form-label">Password</label>
                                     <input
@@ -89,15 +83,12 @@ const SignInForm = () => {
                                         required
                                     />
                                 </div>
-                                {/* Submit button with full width */}
                                 <div className="d-grid">
                                     <button type="submit" className="btn btn-primary btn-block">Sign In</button>
                                 </div>
-                                {/* Link for forgotten password */}
                                 <div className="text-center mt-3">
                                     <Link to="#" className="link-primary">Forgot your password?</Link>
                                 </div>
-                                {/* Link to the registration page */}
                                 <div className="text-center mt-3">
                                     <Link to="/register" className="link-primary">Not Registered? Register Here</Link>
                                 </div>
