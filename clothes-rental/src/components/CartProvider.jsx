@@ -29,26 +29,46 @@ export const CartProvider = ({ children }) => {
     const addToCart = async (product, quantity) => {
         try {
             if (userId) {
-                // Create the CartItemDTO to send to the backend
-                const cartItemDTO = {
-                    userId: Number(userId),
-                    clothingItemId: product.id,
-                    quantity: quantity,
-                };
-
-                console.log(cartItemDTO)
-                // Add the item to the cart using the service
-                await cartItemServices.createCartItem(cartItemDTO);
-
-                // Update the cart items state by re-fetching
+                // Fetch current cart items to check if the product already exists
                 const updatedCartItems = await cartItemServices.getAllCartItems();
                 const userCartItems = updatedCartItems.data.filter(item => item.cart.user.id === Number(userId));
-                setCartItems(userCartItems);
+
+                // Check if the product already exists in the cart
+                const existingCartItem = userCartItems.find(item => item.clothingItem.id === product.id);
+
+                if (existingCartItem) {
+                    // If the product already exists, update its quantity
+                    const updatedQuantity = existingCartItem.quantity + quantity;
+
+                    // Update the existing cart item with the new quantity
+                    const updatedCartItemDTO = {
+                        ...existingCartItem,
+                        quantity: updatedQuantity
+                    };
+
+                    await cartItemServices.updateCartItem(existingCartItem.id, updatedCartItemDTO);
+                } else {
+                    // If the product doesn't exist, create a new cart item
+                    const cartItemDTO = {
+                        userId: Number(userId),
+                        clothingItemId: product.id,
+                        quantity: quantity,
+                    };
+
+                    console.log(cartItemDTO);
+                    await cartItemServices.createCartItem(cartItemDTO);
+                }
+
+                // Update the cart items state by re-fetching
+                const refreshedCartItems = await cartItemServices.getAllCartItems();
+                const userSpecificCartItems = refreshedCartItems.data.filter(item => item.cart.user.id === Number(userId));
+                setCartItems(userSpecificCartItems);
             }
         } catch (error) {
             console.error('Error adding to cart:', error);
         }
     };
+
 
     const clearCart = async () => {
         if (cartItems.length > 0) {

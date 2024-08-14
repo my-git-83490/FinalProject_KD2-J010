@@ -12,6 +12,7 @@ const AddProduct = () => {
     useEffect(() => {
         // Fetch categories when the component loads
         CategoryService.getAll().then((response) => {
+            console.log(response)
             setCategory(response.data);
         }).catch(error => {
             console.error("Error fetching categories:", error);
