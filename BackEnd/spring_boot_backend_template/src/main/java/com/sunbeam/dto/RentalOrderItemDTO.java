@@ -38,6 +38,8 @@ public class RentalOrderItemDTO {
     @NotNull(message = "Price per day is mandatory")
     @DecimalMin(value = "0.0", inclusive = false)
     private double pricePerDay;
+    
+    private String address;
 
     @NotNull(message = "Rental date is mandatory")
     private LocalDate rentalDate;
