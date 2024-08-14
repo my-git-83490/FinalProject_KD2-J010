@@ -1,0 +1,15 @@
+.user-orders .card {
+    transition: transform 0.3s ease;
+}
+
+.user-orders .card:hover {
+    transform: translateY(-5px);
+}
+
+.user-orders .card-header {
+    font-size: 1.2rem;
+}
+
+.user-orders .card-footer {
+    font-weight: bold;
+}

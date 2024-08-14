@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link, useNavigate } from 'react-router-dom';
-import userServices from '../components/userServices'
+import userServices from '../components/userServices';
 import { toast } from 'react-toastify';
 
 const SignInForm = () => {
-
     const navigate = useNavigate();
-
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -18,34 +16,34 @@ const SignInForm = () => {
         setFormData({
             ...formData,
             [name]: value
-
         });
     }
 
-    const handleSignIn = (e) => {
+    const handleSignIn = async (e) => {
         e.preventDefault();
-        console.log("Submitting: ", formData);
-        userServices.login(formData).then((response) => {
-            const { role, email, id, fullName } = response.data;
+        try {
+            console.log("Submitting: ", formData);
+            const response = await userServices.login(formData);
+            console.log(response);
+            const { role, email, id, fullName } = response.data.user;
             console.log(response.data);
-            setFormData({
-                email: formData.email,
-                password: formData.password
-            });
-            sessionStorage.setItem("userRole", role)
-            sessionStorage.setItem("email", email)
+
+            sessionStorage.setItem("userRole", role);
+            sessionStorage.setItem("email", email);
             sessionStorage.setItem("id", id);
             sessionStorage.setItem("fullName", fullName);
-            toast.success("Login Successful")
-            setTimeout(() => {
-                navigate('/home')
-            }, 2000)
-        }).catch((error) => {
-            console.log(error);
-            toast.error("Invalid Credentials")
-        })
-    }
 
+            toast.success("Login Successful");
+            navigate('/home'); // Redirect immediately after success
+        } catch (error) {
+            console.error(error);
+            if (error.response && error.response.status === 401) {
+                toast.error("Invalid Credentials");
+            } else {
+                toast.error("An error occurred. Please try again.");
+            }
+        }
+    }
 
     return (
         <div className="container mt-5">
@@ -87,7 +85,7 @@ const SignInForm = () => {
                                     <button type="submit" className="btn btn-primary btn-block">Sign In</button>
                                 </div>
                                 <div className="text-center mt-3">
-                                    <Link to="#" className="link-primary">Forgot your password?</Link>
+                                    <Link to="/forgot-password" className="link-primary">Forgot your password?</Link>
                                 </div>
                                 <div className="text-center mt-3">
                                     <Link to="/register" className="link-primary">Not Registered? Register Here</Link>

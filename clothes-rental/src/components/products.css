@@ -1,0 +1,37 @@
+/* Add this CSS to your main CSS file */
+.product-card {
+    max-width: 300px;
+    /* Adjust the max-width as needed */
+    height: 100%;
+    /* Ensure the card takes full height */
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card .card-img-top {
+    max-height: 200px;
+    /* Adjust the image height */
+    object-fit: contain;
+    /* Keep the aspect ratio */
+}
+
+.product-card .card-body {
+    flex-grow: 1;
+    /* Ensure the body takes the remaining space */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* Space out the content */
+}
+
+.card-title {
+    font-size: 1.2rem;
+    /* Adjust the title font size */
+    margin-bottom: 0.5rem;
+    /* Space below the title */
+}
+
+.card-text {
+    font-size: 0.9rem;
+    /* Adjust the text font size */
+}
